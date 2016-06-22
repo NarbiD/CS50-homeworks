@@ -86,7 +86,10 @@ int main(int argc, char* argv[])
             // read RGB triple from infile
             fread(&curTriple, sizeof(RGBTRIPLE), 1, inptr);
           
-            // write modified RGB triple to outfile
+            // modify and write RGB triple to outfile
+            curTriple.rgbtBlue = curTriple.rgbtBlue * 8;
+            curTriple.rgbtGreen = curTriple.rgbtGreen * 8;
+            
             if(curTriple.rgbtRed != 0xFF)
             {
                 fwrite(&curTriple, sizeof(RGBTRIPLE), 1, outptr);
