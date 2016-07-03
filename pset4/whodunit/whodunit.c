@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
     // ensure proper usage
     if (argc != 3)
     {
-        printf("Usage: ./copy infile outfile\n");
+        printf("Usage: ./whodunit infile outfile\n");
         return 1;
     }
 
@@ -90,11 +90,14 @@ int main(int argc, char* argv[])
             curTriple.rgbtBlue = curTriple.rgbtBlue * 8;
             curTriple.rgbtGreen = curTriple.rgbtGreen * 8;
             
+            // search and clearance of red pixels
+            // if pixel is not red, write it
             if(curTriple.rgbtRed != 0xFF)
             {
                 fwrite(&curTriple, sizeof(RGBTRIPLE), 1, outptr);
                 prevTriple = curTriple;
             }
+            // if the pixel is red, replace the previous
             else 
             {
                 fwrite(&prevTriple, sizeof(RGBTRIPLE), 1, outptr);
