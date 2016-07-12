@@ -16,20 +16,22 @@
  */
 bool check(const char* word)
 {
+    node* current = &root;
     for (int i = 0, n = strlen(word); i < n; i++)
     {
-        node* current = &root;
         if (current->children[hashFunc(word[i])] != NULL)
         {
             current = current->children[hashFunc(word[i])];
         }
-        else if (current->is_word == true && i == n - 1)
-        {
-            return true;
-        }
-        else return false;
     }
-    return false;
+    if (current->is_word == true) 
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 /**
@@ -37,50 +39,56 @@ bool check(const char* word)
  */
 bool load(const char* dictionary)
 {
-    for (int j = 0, n = strlen(dictionary); j < n; )
+    // open dictionary for read
+    FILE* fp = fopen(dictionary, "r");
+    if (fp == NULL)
     {
-        for (int i = j; i < LENGTH; i++)
+        return false;
+    }
+    
+    // a current letter
+    char letter;
+    
+    
+    while (fread(&letter, sizeof(char), 1, fp))
+    {
+        for (int i = 0; i < LENGTH; i++)
         {
+            // go to the beginning of a word
             node* current = &root;
-            char c = dictionary[i];
-            int ind = hashFunc(c);
-            if (isalpha(c) || (c == '\'' && i > 0))
+            
+            int ind = hashFunc(letter);
+            
+            // last letter was final of the word
+            if (letter == '\n')
             {
-                if (current->children[ind] == NULL)
+                current->is_word = true;
+                words++;
+                continue;
+            }
+            // letter is not final of the word
+            else
+            {
+                // next the letter does not exist
+                if (current->children[ind] != NULL)
                 {
+                    // create place for new letter
                     node* newNode = malloc(sizeof(node));
+                    if (newNode == NULL)
+                    {
+                        return false;
+                    }
                     current->children[ind] = newNode;
                     current = newNode;
-                    j++;
-                    if(dictionary[i + 1] == '\n') 
-                    {
-                        newNode->is_word = true;
-                        words++;
-                        j++;
-                        break;
-                    }
-                }
+                }    
                 else
                 {
                     current = current->children[ind];
-                    j++;
-                    if(dictionary[i + 1] == '\n') 
-                    {
-                        current->is_word = true;
-                        words++;
-                        j++;
-                        break;
-                    }
                 }
             }
-            else 
-            {
-                printf("WRONG");
-            }
         }
-        
     }
-    return false;
+    return true;
 }
 
 /**
