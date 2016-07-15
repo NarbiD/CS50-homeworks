@@ -48,43 +48,41 @@ bool load(const char* dictionary)
     
     // a current letter
     char letter;
-    
+    // go to the beginning of a word
+    node* current = &root;
     
     while (fread(&letter, sizeof(char), 1, fp))
     {
-        for (int i = 0; i < LENGTH; i++)
+        int ind = hashFunc(letter);
+        
+        // last letter was final of the word
+        if (letter == '\n')
         {
-            // go to the beginning of a word
-            node* current = &root;
-            
-            int ind = hashFunc(letter);
-            
-            // last letter was final of the word
-            if (letter == '\n')
+            if (!current->is_word)
             {
                 current->is_word = true;
                 words++;
                 continue;
             }
-            // letter is not final of the word
+        }
+        // letter is not final of the word
+        else
+        {
+            // next the letter does not exist
+            if (current->children[ind] == NULL)
+            {
+                // create place for new letter
+                node* newNode = malloc(sizeof(node));
+                if (newNode == NULL)
+                {
+                    return false;
+                }
+                current->children[ind] = newNode;
+                current = newNode;
+            }    
             else
             {
-                // next the letter does not exist
-                if (current->children[ind] != NULL)
-                {
-                    // create place for new letter
-                    node* newNode = malloc(sizeof(node));
-                    if (newNode == NULL)
-                    {
-                        return false;
-                    }
-                    current->children[ind] = newNode;
-                    current = newNode;
-                }    
-                else
-                {
-                    current = current->children[ind];
-                }
+                current = current->children[ind];
             }
         }
     }
@@ -105,7 +103,7 @@ unsigned int size(void)
 bool unload(void)
 {
     
-    deleteBranch(&root);
+    //deleteBranch(&root);
     return true;
 }
 
@@ -133,6 +131,10 @@ int hashFunc(char a)
     if (isalpha(a))
     {
         return ((int)toupper(a) - 65) % LENGTH;
+    }
+    else if(a == '\n')
+    {
+        return a;
     }
     else
     {
